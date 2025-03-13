@@ -129,7 +129,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     linetype = 1,
     fill = NULL,
     fill_ramp = NULL,
-    alpha = NA,
+    alpha_curve = NA,
+    alpha_ribbon = NA,
     order = NULL
   ),
 
