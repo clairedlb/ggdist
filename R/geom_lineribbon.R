@@ -88,7 +88,9 @@ draw_key_lineribbon = function(self, data, params, size) {
   }
   grobTree(fill_grob, line_grob)
 }
-
+message("fill: ", paste(data$fill, collapse = ", "))  # Debug
+message("alpha_curve: ", paste(data$alpha_curve, collapse = ", "))  # Debug
+message("alpha_ribbon: ", paste(data$alpha_ribbon, collapse = ", "))  # Debug
 #' @rdname ggdist-ggproto
 #' @format NULL
 #' @usage NULL
