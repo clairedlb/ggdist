@@ -64,14 +64,16 @@ globalVariables(c(".lower", ".upper", ".width"))
 NULL
 
 draw_key_lineribbon = function(self, data, params, size) {
-  if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha"]])))) {
+  if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
     data$fill = self$default_key_aes$fill
+    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
   }
   data$fill = ramp_colours(data$fill, data$fill_ramp)
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
     data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
+    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
   }
 
   fill_grob = if (!is.null(data$fill)) {
@@ -109,14 +111,15 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     "Color aesthetics" = list(
       colour = '(or `color`) The color of the **line** sub-geometry.',
       fill = 'The fill color of the **ribbon** sub-geometry.',
-      alpha = 'The opacity of the **line** and **ribbon** sub-geometries.',
+      alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
       fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
     ),
 
     "Line aesthetics" = list(
       linewidth = 'Width of **line**. In \\pkg{ggplot2} < 3.4, was called `size`.',
-      linetype = 'Type of **line** (e.g., `"solid"`, `"dashed"`, etc)'
+      linetype = 'Type of **line** (e.g., `"solid"`, `"dashed"`, etc)',
+      alpha_curve = 'The opacity of the **line**.'
     )
   )),
 
