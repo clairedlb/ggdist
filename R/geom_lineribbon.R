@@ -133,8 +133,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     linetype = 1,
     fill = NULL,
     fill_ramp = NULL,
-    alpha_curve = NA,
-    alpha_ribbon = NA,
+    alpha_curve = 1,
+    alpha_ribbon = 1,
     order = NULL
   ),
 
@@ -142,8 +142,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     colour = "black",
     fill = "gray65",
     linewidth = 1.25,
-    alpha_curve = NA,
-    alpha_ribbon = NA,
+    alpha_curve = 1,
+    alpha_ribbon = 1,
   ),
 
   default_computed_aes = aes(
