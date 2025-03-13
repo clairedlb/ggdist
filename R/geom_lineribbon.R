@@ -68,7 +68,9 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$fill = self$default_key_aes$fill
     data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
   }
-  data$fill = ramp_colours(data$fill, data$fill_ramp)
+  if (!is.null(data$fill)) {
+    data$fill = ramp_colours(data$fill, data$fill_ramp)
+  }
 
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
@@ -79,18 +81,16 @@ draw_key_lineribbon = function(self, data, params, size) {
 
 
   fill_grob = if (!is.null(data$fill)) {
-    data$alpha = data$alpha_ribbon  # Applique alpha_curve à la courbe
+    data$alpha = unique(data$alpha_ribbon)[1]  # Applique alpha_curve à la courbe
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
-    data$alpha = data$alpha_curve  # Applique alpha_curve à la courbe
+    data$alpha = unique(data$alpha_curve)[1]  # Applique alpha_curve à la courbe
     draw_key_path(data, params, size)
   }
   grobTree(fill_grob, line_grob)
 }
-message("fill: ", paste(data$fill, collapse = ", "))  # Debug
-message("alpha_curve: ", paste(data$alpha_curve, collapse = ", "))  # Debug
-message("alpha_ribbon: ", paste(data$alpha_ribbon, collapse = ", "))  # Debug
+
 #' @rdname ggdist-ggproto
 #' @format NULL
 #' @usage NULL
@@ -145,7 +145,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     fill = "gray65",
     linewidth = 1.25,
     alpha_curve = 1,
-    alpha_ribbon = 1,
+    alpha_ribbon = 1
   ),
 
   default_computed_aes = aes(
