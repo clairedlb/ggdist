@@ -69,6 +69,9 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
   }
   data$fill = ramp_colours(data$fill, data$fill_ramp)
+  if (length(data$fill) > 1) {
+    data$fill = data$fill[1]
+  }
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
