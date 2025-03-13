@@ -77,9 +77,11 @@ draw_key_lineribbon = function(self, data, params, size) {
   }
 
   fill_grob = if (!is.null(data$fill)) {
+    data$alpha = data$alpha_ribbon  # Applique alpha_curve à la courbe
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
+    data$alpha = data$alpha_curve  # Applique alpha_curve à la courbe
     draw_key_path(data, params, size)
   }
   grobTree(fill_grob, line_grob)
@@ -137,7 +139,9 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
   default_key_aes = aes(
     colour = "black",
     fill = "gray65",
-    linewidth = 1.25
+    linewidth = 1.25,
+    alpha_curve = NA,
+    alpha_ribbon = NA,
   ),
 
   default_computed_aes = aes(
