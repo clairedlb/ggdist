@@ -66,23 +66,15 @@ NULL
 draw_key_lineribbon = function(self, data, params, size) {
   if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
     data$fill = self$default_key_aes$fill
+    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
   }
   data$fill = ramp_colours(data$fill, data$fill_ramp)
-  data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
 
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
     data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
     data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
-  }
-
-  # Vérifie que alpha_curve et alpha_ribbon sont de longueur 1
-  if (length(data$alpha_curve) > 1) {
-    data$alpha_curve = data$alpha_curve[1]
-  }
-  if (length(data$alpha_ribbon) > 1) {
-    data$alpha_ribbon = data$alpha_ribbon[1]
   }
 
 
