@@ -77,6 +77,15 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
   }
 
+  # Vérifie que alpha_curve et alpha_ribbon sont de longueur 1
+  if (length(data$alpha_curve) > 1) {
+    data$alpha_curve = data$alpha_curve[1]
+  }
+  if (length(data$alpha_ribbon) > 1) {
+    data$alpha_ribbon = data$alpha_ribbon[1]
+  }
+
+
   fill_grob = if (!is.null(data$fill)) {
     data$alpha = data$alpha_ribbon  # Applique alpha_curve à la courbe
     draw_key_rect(data, params, size)
