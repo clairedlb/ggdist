@@ -33,6 +33,8 @@ globalVariables(c(".lower", ".upper", ".width"))
 #' @param ...  Other arguments passed to [`layer()`][ggplot2::layer]. These are often aesthetics, used to set an aesthetic
 #' to a fixed value, like `colour = "red"` or `linewidth = 3` (see **Aesthetics**, below). They may also be
 #' parameters to the paired geom/stat.
+#' #' @param alpha_curve The opacity of the **line** sub-geometry. Default is `1` (fully opaque).
+#' @param alpha_ribbon The opacity of the **ribbon** sub-geometry. Default is `1` (fully opaque).
 #' @return A [ggplot2::Geom] representing a combined line + multiple-ribbon geometry which can
 #' be added to a [`ggplot()`][ggplot2::ggplot] object.
 #' @author Matthew Kay
@@ -66,26 +68,28 @@ NULL
 draw_key_lineribbon = function(self, data, params, size) {
   if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
     data$fill = self$default_key_aes$fill
-    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
+    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon%||% 1
   }
-  if (!is.null(data$fill)) {
-    data$fill = ramp_colours(data$fill, data$fill_ramp)
+  # Applique ramp_colours et force fill à être de longueur 1
+  data$fill = ramp_colours(data$fill, data$fill_ramp)
+  if (length(data$fill) > 1) {
+    data$fill = data$fill[1]
   }
 
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
     data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
-    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
+    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve%||% 1
   }
 
 
   fill_grob = if (!is.null(data$fill)) {
-    data$alpha = unique(data$alpha_ribbon)[1]  # Applique alpha_curve à la courbe
+    data$alpha = data$alpha_ribbon  # Applique alpha_ribbon à la zone de remplissage
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
-    data$alpha = unique(data$alpha_curve)[1]  # Applique alpha_curve à la courbe
+    data$alpha = data$alpha_curve  # Applique alpha_curve à la courbe
     draw_key_path(data, params, size)
   }
   grobTree(fill_grob, line_grob)
@@ -117,6 +121,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     "Color aesthetics" = list(
       colour = '(or `color`) The color of the **line** sub-geometry.',
       fill = 'The fill color of the **ribbon** sub-geometry.',
+      alpha = 'The opacity of the **line** and **ribbon** sub-geometries.',      #on le laisse pour l'instant
       alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
       fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
@@ -135,8 +140,9 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     linetype = 1,
     fill = NULL,
     fill_ramp = NULL,
-    alpha_curve = 1,
-    alpha_ribbon = 1,
+    alpha = NA,  # Ancien paramètre alpha (à conserver pour compatibilité)
+    alpha_curve = 1,     # Nouveau paramètre pour la transparence de la ligne
+    alpha_ribbon = 1,    # Nouveau paramètre pour la transparence de la zone de remplissage
     order = NULL
   ),
 
@@ -202,6 +208,10 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     ...
   ) {
     define_orientation_variables(orientation)
+
+    # Applique les valeurs par défaut pour alpha_curve et alpha_ribbon
+    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve %||% 1
+    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon %||% 1
 
     # provide defaults for color aesthetics --- we do this here because
     # doing it with default_aes makes the scales very busy (as all of
