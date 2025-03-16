@@ -66,16 +66,26 @@ globalVariables(c(".lower", ".upper", ".width"))
 NULL
 
 draw_key_lineribbon = function(self, data, params, size) {
+
+    # Message de débogage pour vérifier fill avant toute modification
+    message("fill (initial): ", paste(data$fill, collapse = ", "))  # Debug
+
   if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
     data$fill = self$default_key_aes$fill
     data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon%||% 1
   }
+
+  # Message de débogage pour vérifier fill après la gestion de fill et alpha_ribbon
+  message("fill (after fill/alpha_ribbon handling): ", paste(data$fill, collapse = ", "))  # Debug
+
   # Applique ramp_colours et force fill à être de longueur 1
   data$fill = ramp_colours(data$fill, data$fill_ramp)
   if (length(data$fill) > 1) {
     data$fill = data$fill[1]
   }
 
+  # Message de débogage pour vérifier fill après ramp_colours
+  message("fill (after ramp_colours): ", paste(data$fill, collapse = ", "))  # Debug
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
@@ -83,6 +93,17 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve%||% 1
   }
 
+  # Message de débogage pour vérifier alpha_curve et alpha_ribbon
+  message("alpha_curve: ", paste(data$alpha_curve, collapse = ", "))  # Debug
+  message("alpha_ribbon: ", paste(data$alpha_ribbon, collapse = ", "))  # Debug
+
+  # Vérifie que alpha_curve et alpha_ribbon sont de longueur 1
+  if (length(data$alpha_curve) > 1) {
+    data$alpha_curve = data$alpha_curve[1]
+  }
+  if (length(data$alpha_ribbon) > 1) {
+    data$alpha_ribbon = data$alpha_ribbon[1]
+  }
 
   fill_grob = if (!is.null(data$fill)) {
     data$alpha = data$alpha_ribbon  # Applique alpha_ribbon à la zone de remplissage
@@ -208,6 +229,12 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     ...
   ) {
     define_orientation_variables(orientation)
+
+    # Applique les valeurs par défaut pour fill
+    data$fill = data[["fill"]] %||% self$default_key_aes$fill
+    if (length(data$fill) > 1) {
+      data$fill = data$fill[1]  # Force fill à être de longueur 1
+    }
 
     # Applique les valeurs par défaut pour alpha_curve et alpha_ribbon
     data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve %||% 1
