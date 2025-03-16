@@ -72,7 +72,11 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
   }
 
+  # Applique ramp_colours et force fill à être de longueur 1
   data$fill = ramp_colours(data$fill, data$fill_ramp)
+  if (length(data$fill) > 1) {
+    data$fill = data$fill[1]
+  }
 
   if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
     data$colour = data[["colour"]] %||% self$default_key_aes$colour
@@ -210,8 +214,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     }
 
     # Applique les valeurs par défaut pour alpha_curve et alpha_ribbon
-    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve %||% 1
-    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon %||% 1
+    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
+    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
 
     # provide defaults for color aesthetics --- we do this here because
     # doing it with default_aes makes the scales very busy (as all of
