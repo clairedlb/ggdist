@@ -121,6 +121,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     "Color aesthetics" = list(
       colour = '(or `color`) The color of the **line** sub-geometry.',
       fill = 'The fill color of the **ribbon** sub-geometry.',
+      alpha = 'The opacity of the **line** and **ribbon** sub-geometries.',
       alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
       fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
@@ -139,6 +140,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     linetype = 1,
     fill = NULL,
     fill_ramp = NULL,
+    alpha = NA,  # Ancien paramètre alpha (à conserver pour compatibilité)
     alpha_curve = 1,     # Nouveau paramètre pour la transparence de la ligne
     alpha_ribbon = 1,    # Nouveau paramètre pour la transparence de la zone de remplissage
     order = NULL
