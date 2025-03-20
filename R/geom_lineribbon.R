@@ -85,11 +85,11 @@ draw_key_lineribbon = function(self, data, params, size) {
   }
 
   fill_grob = if (!is.null(data$fill)) {
-    data$alpha <- data[["alpha_curve"]]
+    data$alpha <- data[["alpha_ribbon"]]
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
-    data$alpha <- data[["alpha_ribbon"]]
+    data$alpha <- data[["alpha_curve"]]
     draw_key_path(data, params, size)
   }
   grobTree(fill_grob, line_grob)
@@ -121,7 +121,6 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     "Color aesthetics" = list(
       colour = '(or `color`) The color of the **line** sub-geometry.',
       fill = 'The fill color of the **ribbon** sub-geometry.',
-      alpha = 'The opacity of the **line** and **ribbon** sub-geometries.',
       alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
       fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
@@ -140,7 +139,6 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     linetype = 1,
     fill = NULL,
     fill_ramp = NULL,
-    alpha = NA,  # Ancien paramètre alpha (à conserver pour compatibilité)
     alpha_curve = 1,     # Nouveau paramètre pour la transparence de la ligne
     alpha_ribbon = 1,    # Nouveau paramètre pour la transparence de la zone de remplissage
     order = NULL
@@ -209,16 +207,6 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
   ) {
     define_orientation_variables(orientation)
 
-    # Applique les valeurs par défaut pour fill
-    data$fill = data[["fill"]] %||% self$default_key_aes$fill
-    if (length(data$fill) > 1) {
-      data$fill = data$fill[1]  # Force fill à être de longueur 1
-    }
-
-    # Applique les valeurs par défaut pour alpha_curve et alpha_ribbon
-    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
-    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
-
     # provide defaults for color aesthetics --- we do this here because
     # doing it with default_aes makes the scales very busy (as all of
     # these elements get drawn even if they aren't mapped). By
@@ -256,6 +244,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
 
     # draw all the ribbons
     ribbon_grobs = dlply_(data, grouping_columns, function(d) {
+      # Applique alpha_ribbon au remplissage
+      d$alpha <- d$alpha_ribbon
       group_grobs = list(
         GeomRibbon$draw_panel(transform(d, linewidth = NA), panel_scales, coord, flipped_aes = flipped_aes)
       )
@@ -271,6 +261,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     # now draw all the lines
     line_grobs = dlply_(data, grouping_columns, function(d) {
       if (!is.null(d[[x]])) {
+        # Applique alpha_curve à la ligne
+        d$alpha <- d$alpha_curve
         list(GeomLine$draw_panel(d, panel_scales, coord))
       } else {
         list()
