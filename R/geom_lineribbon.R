@@ -85,9 +85,11 @@ draw_key_lineribbon = function(self, data, params, size) {
   }
 
   fill_grob = if (!is.null(data$fill)) {
+    data$alpha <- data[["alpha_curve"]]
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
+    data$alpha <- data[["alpha_ribbon"]]
     draw_key_path(data, params, size)
   }
   grobTree(fill_grob, line_grob)
