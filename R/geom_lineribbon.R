@@ -67,6 +67,22 @@ NULL
 
 draw_key_lineribbon = function(self, data, params, size) {
 
+  # Vérifiez le type de data et affichez sa structure
+  cat("Type de data:", class(data), "\n")
+  if (is.list(data)) {
+    cat("Contenu de data:\n")
+    print(str(data))
+  } else if (is.data.frame(data)) {
+    cat("Contenu de data:\n")
+    print(head(data))
+  } else {
+    cat("data n'est ni une liste ni un data frame.\n")
+  }
+
+  # Débogage : Affichez les valeurs initiales
+  cat("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+  cat("Initial alpha_curve:", data[["alpha_curve"]], "\n")
+
   if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
     data$fill = self$default_key_aes$fill
     data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
@@ -85,13 +101,20 @@ draw_key_lineribbon = function(self, data, params, size) {
   }
 
   fill_grob = if (!is.null(data$fill)) {
-    data$alpha <- data[["alpha_ribbon"]]
+    # Utilisez modifyList pour mettre à jour data
+    data <- modifyList(data, list(alpha = data[["alpha_ribbon"]]))
     draw_key_rect(data, params, size)
   }
   line_grob = if (!is.null(data$colour)) {
-    data$alpha <- data[["alpha_curve"]]
+    # Utilisez modifyList pour mettre à jour data
+    data <- modifyList(data, list(alpha = data[["alpha_curve"]]))
     draw_key_path(data, params, size)
   }
+
+  # Débogage : Affichez les valeurs finales
+  cat("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+  cat("Final alpha_curve:", data[["alpha_curve"]], "\n")
+
   grobTree(fill_grob, line_grob)
 }
 
