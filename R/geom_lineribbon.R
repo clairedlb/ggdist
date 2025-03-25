@@ -104,15 +104,15 @@ GeomLineribbon <- ggproto(
     draw_key_lineribbon = function(self, data, params, size) {
 
       # Vérifiez le type de data et affichez sa structure
-      cat("Type de data:", class(data), "\n")
+      message("Type de data:", class(data), "\n")
       if (is.list(data)) {
-        cat("Contenu de data:\n")
+        message("Contenu de data:\n")
         print(str(data))
       } else if (is.data.frame(data)) {
-        cat("Contenu de data:\n")
+        message("Contenu de data:\n")
         print(head(data))
       } else {
-        cat("data n'est ni une liste ni un data frame.\n")
+        message("data n'est ni une liste ni un data frame.\n")
       }
 
       # Si alpha_ribbon ou alpha_curve ne sont pas présents, initialisez-les avec les valeurs par défaut
@@ -124,8 +124,8 @@ GeomLineribbon <- ggproto(
       }
 
       # Débogage : Affichez les valeurs initiales
-      cat("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-      cat("Initial alpha_curve:", data[["alpha_curve"]], "\n")
+      message("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+      message("Initial alpha_curve:", data[["alpha_curve"]], "\n")
 
       if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
         data$fill = self$default_key_aes$fill
@@ -156,8 +156,8 @@ GeomLineribbon <- ggproto(
       }
 
       # Débogage : Affichez les valeurs finales
-      cat("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-      cat("Final alpha_curve:", data[["alpha_curve"]], "\n")
+      message("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+      message("Final alpha_curve:", data[["alpha_curve"]], "\n")
 
       grobTree(fill_grob, line_grob)
     }
