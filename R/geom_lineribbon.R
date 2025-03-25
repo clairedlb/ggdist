@@ -79,6 +79,14 @@ draw_key_lineribbon = function(self, data, params, size) {
     cat("data n'est ni une liste ni un data frame.\n")
   }
 
+  # Si alpha_ribbon ou alpha_curve ne sont pas présents, initialisez-les avec les valeurs par défaut
+  if (is.null(data[["alpha_ribbon"]])) {
+    data$alpha_ribbon <- params$alpha_ribbon %||% self$default_key_aes$alpha_ribbon
+  }
+  if (is.null(data[["alpha_curve"]])) {
+    data$alpha_curve <- params$alpha_curve %||% self$default_key_aes$alpha_curve
+  }
+
   # Débogage : Affichez les valeurs initiales
   cat("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
   cat("Initial alpha_curve:", data[["alpha_curve"]], "\n")
