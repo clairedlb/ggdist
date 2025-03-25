@@ -65,141 +65,177 @@ globalVariables(c(".lower", ".upper", ".width"))
 #' @name geom_lineribbon
 NULL
 
-draw_key_lineribbon = function(self, data, params, size) {
+# Modifiez la fonction geom_lineribbon pour accepter les nouveaux paramètres
+geom_lineribbon <- function(mapping = NULL, data = NULL, ..., alpha_ribbon = NULL, alpha_curve = NULL) {
+  # Ajoutez les paramètres à la liste des paramètres existants
+  params <- list(...)
+  params$alpha_ribbon <- alpha_ribbon
+  params$alpha_curve <- alpha_curve
 
-  # Vérifiez le type de data et affichez sa structure
-  cat("Type de data:", class(data), "\n")
-  if (is.list(data)) {
-    cat("Contenu de data:\n")
-    print(str(data))
-  } else if (is.data.frame(data)) {
-    cat("Contenu de data:\n")
-    print(head(data))
-  } else {
-    cat("data n'est ni une liste ni un data frame.\n")
-  }
-
-  # Si alpha_ribbon ou alpha_curve ne sont pas présents, initialisez-les avec les valeurs par défaut
-  if (is.null(data[["alpha_ribbon"]])) {
-    data$alpha_ribbon <- params$alpha_ribbon %||% self$default_key_aes$alpha_ribbon
-  }
-  if (is.null(data[["alpha_curve"]])) {
-    data$alpha_curve <- params$alpha_curve %||% self$default_key_aes$alpha_curve
-  }
-
-  # Débogage : Affichez les valeurs initiales
-  cat("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-  cat("Initial alpha_curve:", data[["alpha_curve"]], "\n")
-
-  if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
-    data$fill = self$default_key_aes$fill
-    data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
-  }
-
-  # Applique ramp_colours et force fill à être de longueur 1
-  data$fill = ramp_colours(data$fill, data$fill_ramp)
-  if (length(data$fill) > 1) {
-    data$fill = data$fill[1]
-  }
-
-  if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
-    data$colour = data[["colour"]] %||% self$default_key_aes$colour
-    data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
-    data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
-  }
-
-  fill_grob = if (!is.null(data$fill)) {
-    # Utilisez modifyList pour mettre à jour data
-    data <- modifyList(data, list(alpha = data[["alpha_ribbon"]]))
-    draw_key_rect(data, params, size)
-  }
-  line_grob = if (!is.null(data$colour)) {
-    # Utilisez modifyList pour mettre à jour data
-    data <- modifyList(data, list(alpha = data[["alpha_curve"]]))
-    draw_key_path(data, params, size)
-  }
-
-  # Débogage : Affichez les valeurs finales
-  cat("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-  cat("Final alpha_curve:", data[["alpha_curve"]], "\n")
-
-  grobTree(fill_grob, line_grob)
+  # Créez une couche ggplot2 avec les paramètres modifiés
+  layer(
+    geom = GeomLineribbon, mapping = mapping, data = data,
+    params = params
+  )
 }
 
-#' @rdname ggdist-ggproto
-#' @format NULL
-#' @usage NULL
-#' @import ggplot2
-#' @export
-GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
+# Assurez-vous que GeomLineribbon utilise ces paramètres
+GeomLineribbon <- ggproto(
+  "GeomLineribbon", AbstractGeom,
+  setup_data = function(data, params) {
+    if (!is.null(params$alpha_ribbon)) {
+      data$alpha_ribbon <- params$alpha_ribbon
+    }
+    if (!is.null(params$alpha_curve)) {
+      data$alpha_curve <- params$alpha_curve
+    }
+    data
+  },
+  draw_panel = function(data, panel_params, coord) {
+    # Utilisez alpha_ribbon et alpha_curve dans le rendu
+    if (!is.null(data$alpha_ribbon)) {
+      data$alpha <- data$alpha_ribbon
+    }
+    if (!is.null(data$alpha_curve)) {
+      data$alpha <- data$alpha_curve
+    }
 
-  ## aesthetics --------------------------------------------------------------
 
-  aes_docs = modifyList(AbstractGeom$aes_docs, list(
-    "Ribbon-specific aesthetics" = list(
-      xmin = 'Left edge of the ribbon sub-geometry (if `orientation = "horizontal"`).',
-      xmax = 'Right edge of the ribbon sub-geometry (if `orientation = "horizontal"`).',
-      ymin = 'Lower edge of the ribbon sub-geometry (if `orientation = "vertical"`).',
-      ymax = 'Upper edge of the ribbon sub-geometry (if `orientation = "vertical"`).',
-      order = 'The order in which ribbons are drawn. Ribbons with the smallest mean value of `order`
+    draw_key_lineribbon = function(self, data, params, size) {
+
+      # Vérifiez le type de data et affichez sa structure
+      cat("Type de data:", class(data), "\n")
+      if (is.list(data)) {
+        cat("Contenu de data:\n")
+        print(str(data))
+      } else if (is.data.frame(data)) {
+        cat("Contenu de data:\n")
+        print(head(data))
+      } else {
+        cat("data n'est ni une liste ni un data frame.\n")
+      }
+
+      # Si alpha_ribbon ou alpha_curve ne sont pas présents, initialisez-les avec les valeurs par défaut
+      if (is.null(data[["alpha_ribbon"]])) {
+        data$alpha_ribbon <- params$alpha_ribbon %||% self$default_key_aes$alpha_ribbon
+      }
+      if (is.null(data[["alpha_curve"]])) {
+        data$alpha_curve <- params$alpha_curve %||% self$default_key_aes$alpha_curve
+      }
+
+      # Débogage : Affichez les valeurs initiales
+      cat("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+      cat("Initial alpha_curve:", data[["alpha_curve"]], "\n")
+
+      if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
+        data$fill = self$default_key_aes$fill
+        data$alpha_ribbon = data[["alpha_ribbon"]] %||% self$default_key_aes$alpha_ribbon
+      }
+
+      # Applique ramp_colours et force fill à être de longueur 1
+      data$fill = ramp_colours(data$fill, data$fill_ramp)
+      if (length(data$fill) > 1) {
+        data$fill = data$fill[1]
+      }
+
+      if (!is.null(data[["colour"]]) || !is.null(data[["linewidth"]])) {
+        data$colour = data[["colour"]] %||% self$default_key_aes$colour
+        data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
+        data$alpha_curve = data[["alpha_curve"]] %||% self$default_key_aes$alpha_curve
+      }
+
+      fill_grob = if (!is.null(data$fill)) {
+        # Utilisez modifyList pour mettre à jour data
+        data <- modifyList(data, list(alpha = data[["alpha_ribbon"]]))
+        draw_key_rect(data, params, size)
+      }
+      line_grob = if (!is.null(data$colour)) {
+        # Utilisez modifyList pour mettre à jour data
+        data <- modifyList(data, list(alpha = data[["alpha_curve"]]))
+        draw_key_path(data, params, size)
+      }
+
+      # Débogage : Affichez les valeurs finales
+      cat("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
+      cat("Final alpha_curve:", data[["alpha_curve"]], "\n")
+
+      grobTree(fill_grob, line_grob)
+    }
+
+    #' @rdname ggdist-ggproto
+    #' @format NULL
+    #' @usage NULL
+    #' @import ggplot2
+    #' @export
+    GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
+
+                             ## aesthetics --------------------------------------------------------------
+
+                             aes_docs = modifyList(AbstractGeom$aes_docs, list(
+                               "Ribbon-specific aesthetics" = list(
+                                 xmin = 'Left edge of the ribbon sub-geometry (if `orientation = "horizontal"`).',
+                                 xmax = 'Right edge of the ribbon sub-geometry (if `orientation = "horizontal"`).',
+                                 ymin = 'Lower edge of the ribbon sub-geometry (if `orientation = "vertical"`).',
+                                 ymax = 'Upper edge of the ribbon sub-geometry (if `orientation = "vertical"`).',
+                                 order = 'The order in which ribbons are drawn. Ribbons with the smallest mean value of `order`
         are drawn first (i.e., will be drawn below ribbons with larger mean values of `order`). If
         `order` is not supplied to [geom_lineribbon()], `-abs(xmax - xmin)` or `-abs(ymax - ymax)`
         (depending on `orientation`) is used, having the effect of drawing the widest (on average)
         ribbons on the bottom. [stat_lineribbon()] uses `order = after_stat(level)` by default,
         causing the ribbons generated from the largest `.width` to be drawn on the bottom.'
-    ),
+                               ),
 
-    "Color aesthetics" = list(
-      colour = '(or `color`) The color of the **line** sub-geometry.',
-      fill = 'The fill color of the **ribbon** sub-geometry.',
-      alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
-      fill_ramp = 'A secondary scale that modifies the `fill`
+                               "Color aesthetics" = list(
+                                 colour = '(or `color`) The color of the **line** sub-geometry.',
+                                 fill = 'The fill color of the **ribbon** sub-geometry.',
+                                 alpha_ribbon = 'The opacity of the **ribbon** sub-geometries.',
+                                 fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
-    ),
+                               ),
 
-    "Line aesthetics" = list(
-      linewidth = 'Width of **line**. In \\pkg{ggplot2} < 3.4, was called `size`.',
-      linetype = 'Type of **line** (e.g., `"solid"`, `"dashed"`, etc)',
-      alpha_curve = 'The opacity of the **line**.'
-    )
-  )),
+                               "Line aesthetics" = list(
+                                 linewidth = 'Width of **line**. In \\pkg{ggplot2} < 3.4, was called `size`.',
+                                 linetype = 'Type of **line** (e.g., `"solid"`, `"dashed"`, etc)',
+                                 alpha_curve = 'The opacity of the **line**.'
+                               )
+                             )),
 
-  default_aes = aes(
-    colour = NULL,
-    linewidth = NULL,
-    linetype = 1,
-    fill = NULL,
-    fill_ramp = NULL,
-    alpha_curve = 1,     # Nouveau paramètre pour la transparence de la ligne
-    alpha_ribbon = 1,    # Nouveau paramètre pour la transparence de la zone de remplissage
-    order = NULL
-  ),
+                             default_aes = aes(
+                               colour = NULL,
+                               linewidth = NULL,
+                               linetype = 1,
+                               fill = NULL,
+                               fill_ramp = NULL,
+                               alpha_curve = 1,     # Nouveau paramètre pour la transparence de la ligne
+                               alpha_ribbon = 1,    # Nouveau paramètre pour la transparence de la zone de remplissage
+                               order = NULL
+                             ),
 
-  default_key_aes = aes(
-    colour = "black",
-    fill = "gray65",
-    linewidth = 1.25,
-    alpha_curve = 1,
-    alpha_ribbon = 1
-  ),
+                             default_key_aes = aes(
+                               colour = "black",
+                               fill = "gray65",
+                               linewidth = 1.25,
+                               alpha_curve = 1,
+                               alpha_ribbon = 1
+                             ),
 
-  default_computed_aes = aes(
-    fill = fct_rev_(ordered(.width))
-  ),
+                             default_computed_aes = aes(
+                               fill = fct_rev_(ordered(.width))
+                             ),
 
-  # support for `size` in place of `linewidth` aes in ggplot2 < 3.4
-  rename_size = TRUE,
-  non_missing_aes = union("size", AbstractGeom$non_missing_aes),
+                             # support for `size` in place of `linewidth` aes in ggplot2 < 3.4
+                             rename_size = TRUE,
+                             non_missing_aes = union("size", AbstractGeom$non_missing_aes),
 
-  required_aes = c("x|y", "ymin|xmin", "ymax|xmax"),
+                             required_aes = c("x|y", "ymin|xmin", "ymax|xmax"),
 
-  optional_aes = c("fill_ramp", "order"),
+                             optional_aes = c("fill_ramp", "order"),
 
 
-  ## params ------------------------------------------------------------------
+                             ## params ------------------------------------------------------------------
 
-  param_docs = defaults(list(
-    step = glue_doc('
+                             param_docs = defaults(list(
+                               step = glue_doc('
       <scalar [logical] | [string][character]> Should the line/ribbon be drawn
       as a step function? One of:
       \\itemize{
@@ -212,143 +248,146 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
       `"mid"` is reasonable default (for the other two step approaches the ribbons
       at either the very first or very last x value will not be visible).
       ')
-  ), AbstractGeom$param_docs),
+                             ), AbstractGeom$param_docs),
 
-  default_params = list(
-    step = FALSE,
-    orientation = NA,
-    na.rm = FALSE
-  ),
+                             default_params = list(
+                               step = FALSE,
+                               orientation = NA,
+                               na.rm = FALSE
+                             ),
 
-  orientation_options = defaults(list(
-    range_is_orthogonal = TRUE, ambiguous = TRUE, group_has_equal = TRUE
-  ), AbstractGeom$orientation_options),
+                             orientation_options = defaults(list(
+                               range_is_orthogonal = TRUE, ambiguous = TRUE, group_has_equal = TRUE
+                             ), AbstractGeom$orientation_options),
 
 
-  ## other methods -----------------------------------------------------------
+                             ## other methods -----------------------------------------------------------
 
-  # workaround (#84)
-  draw_key = function(self, ...) draw_key_lineribbon(self, ...),
+                             # workaround (#84)
+                             draw_key = function(self, ...) draw_key_lineribbon(self, ...),
 
-  draw_panel = function(self, data, panel_scales, coord,
-    step = self$default_params$step,
-    orientation = self$default_params$orientation,
-    flipped_aes = FALSE,
-    ...
-  ) {
-    define_orientation_variables(orientation)
+                             draw_panel = function(self, data, panel_scales, coord,
+                                                   step = self$default_params$step,
+                                                   orientation = self$default_params$orientation,
+                                                   flipped_aes = FALSE,
+                                                   ...
+                             ) {
+                               define_orientation_variables(orientation)
 
-    # provide defaults for color aesthetics --- we do this here because
-    # doing it with default_aes makes the scales very busy (as all of
-    # these elements get drawn even if they aren't mapped). By
-    # setting the defaults here we can then check if these are present
-    # in draw_key and not draw them if they aren't mapped.
-    for (aesthetic in names(self$default_key_aes)) {
-      data[[aesthetic]] = data[[aesthetic]] %||% self$default_key_aes[[aesthetic]]
-    }
+                               # provide defaults for color aesthetics --- we do this here because
+                               # doing it with default_aes makes the scales very busy (as all of
+                               # these elements get drawn even if they aren't mapped). By
+                               # setting the defaults here we can then check if these are present
+                               # in draw_key and not draw them if they aren't mapped.
+                               for (aesthetic in names(self$default_key_aes)) {
+                                 data[[aesthetic]] = data[[aesthetic]] %||% self$default_key_aes[[aesthetic]]
+                               }
 
-    # must save the raw fill color prior to doing the ramp, otherwise if two different
-    # colors ramp to the same fill (e.g. both ramp to 100% white) they will get
-    # grouped together erroneously
-    data$fill_raw = data$fill
-    data$fill = ramp_colours(data$fill, data$fill_ramp)
+                               # must save the raw fill color prior to doing the ramp, otherwise if two different
+                               # colors ramp to the same fill (e.g. both ramp to 100% white) they will get
+                               # grouped together erroneously
+                               data$fill_raw = data$fill
+                               data$fill = ramp_colours(data$fill, data$fill_ramp)
 
-    # ribbons do not autogroup by color/fill/linetype, so if someone groups by changing the color
-    # of the line or by setting fill, the ribbons might give an error. So we will do the
-    # grouping ourselves
-    grouping_columns = intersect(names(data), c("colour", "fill", "fill_raw", "linetype", "group"))
+                               # ribbons do not autogroup by color/fill/linetype, so if someone groups by changing the color
+                               # of the line or by setting fill, the ribbons might give an error. So we will do the
+                               # grouping ourselves
+                               grouping_columns = intersect(names(data), c("colour", "fill", "fill_raw", "linetype", "group"))
 
-    # draw as a step function if requested
-    if (isTRUE(step)) step = "mid"
-    if (!isFALSE(step)) data = ddply_(data, grouping_columns, stepify, x = y, direction = step)
+                               # draw as a step function if requested
+                               if (isTRUE(step)) step = "mid"
+                               if (!isFALSE(step)) data = ddply_(data, grouping_columns, stepify, x = y, direction = step)
 
-    # determine order we will draw ribbons in (smallest order last)
-    data[["order"]] = if (is.null(data[["order"]])) {
-      # this is a slightly hackish approach to getting the draw order correct for the common
-      # use case of fit lines / curves: when order is not specified explicitly, draw the ribbons
-      # in order from largest mean width to smallest mean width, so that the widest intervals
-      # are on the bottom.
-      -abs(data[[xmax]] - data[[xmin]])
-    } else {
-      xtfrm(data[["order"]])
-    }
+                               # determine order we will draw ribbons in (smallest order last)
+                               data[["order"]] = if (is.null(data[["order"]])) {
+                                 # this is a slightly hackish approach to getting the draw order correct for the common
+                                 # use case of fit lines / curves: when order is not specified explicitly, draw the ribbons
+                                 # in order from largest mean width to smallest mean width, so that the widest intervals
+                                 # are on the bottom.
+                                 -abs(data[[xmax]] - data[[xmin]])
+                               } else {
+                                 xtfrm(data[["order"]])
+                               }
 
-    # draw all the ribbons
-    ribbon_grobs = dlply_(data, grouping_columns, function(d) {
-      # Applique alpha_ribbon au remplissage
-      d$alpha <- d$alpha_ribbon
-      group_grobs = list(
-        GeomRibbon$draw_panel(transform(d, linewidth = NA), panel_scales, coord, flipped_aes = flipped_aes)
-      )
-      list(
-        order = mean(d[["order"]], na.rm = TRUE),
-        grobs = group_grobs
-      )
-    })
-    ribbon_grobs = ribbon_grobs[order(map_dbl_(ribbon_grobs, `[[`, "order"))]
-    ribbon_grobs = lapply(ribbon_grobs, `[[`, i = "grobs")
-    ribbon_grobs = unlist(ribbon_grobs, recursive = FALSE, use.names = FALSE) %||% list()
+                               # draw all the ribbons
+                               ribbon_grobs = dlply_(data, grouping_columns, function(d) {
+                                 # Applique alpha_ribbon au remplissage
+                                 d$alpha <- d$alpha_ribbon
+                                 group_grobs = list(
+                                   GeomRibbon$draw_panel(transform(d, linewidth = NA), panel_scales, coord, flipped_aes = flipped_aes)
+                                 )
+                                 list(
+                                   order = mean(d[["order"]], na.rm = TRUE),
+                                   grobs = group_grobs
+                                 )
+                               })
+                               ribbon_grobs = ribbon_grobs[order(map_dbl_(ribbon_grobs, `[[`, "order"))]
+                               ribbon_grobs = lapply(ribbon_grobs, `[[`, i = "grobs")
+                               ribbon_grobs = unlist(ribbon_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-    # now draw all the lines
-    line_grobs = dlply_(data, grouping_columns, function(d) {
-      if (!is.null(d[[x]])) {
-        # Applique alpha_curve à la ligne
-        d$alpha <- d$alpha_curve
-        list(GeomLine$draw_panel(d, panel_scales, coord))
-      } else {
-        list()
-      }
-    })
-    line_grobs = unlist(line_grobs, recursive = FALSE, use.names = FALSE) %||% list()
+                               # now draw all the lines
+                               line_grobs = dlply_(data, grouping_columns, function(d) {
+                                 if (!is.null(d[[x]])) {
+                                   # Applique alpha_curve à la ligne
+                                   d$alpha <- d$alpha_curve
+                                   list(GeomLine$draw_panel(d, panel_scales, coord))
+                                 } else {
+                                   list()
+                                 }
+                               })
+                               line_grobs = unlist(line_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-    grobs = c(ribbon_grobs, line_grobs)
+                               grobs = c(ribbon_grobs, line_grobs)
 
-    ggname("geom_lineribbon",
-      gTree(children = do.call(gList, grobs))
+                               ggname("geom_lineribbon",
+                                      gTree(children = do.call(gList, grobs))
+                               )
+                             }
     )
+
+    #' @rdname geom_lineribbon
+    #' @export
+    geom_lineribbon = make_geom(GeomLineribbon)
+
+
+    # helpers -----------------------------------------------------------------
+
+    stepify = function(df, x = "x", direction = "hv") {
+      n = nrow(df)
+
+      # sort by x and double up all rows in the data frame
+      step_df = df[rep(order(df[[x]]), each = 2),]
+
+      switch(direction,
+             hv = {
+               # horizontal-to-vertical step => lead x and drop last row
+               lead_x = step_df[[x]][-1]
+               step_df = step_df[-2*n,]
+               step_df[[x]] = lead_x
+               step_df
+             },
+             vh = {
+               # vertical-to-horizontal step => lag x and drop first row
+               lag_x = step_df[[x]][-2*n]
+               step_df = step_df[-1,]
+               step_df[[x]] = lag_x
+               step_df
+             },
+             mid = {
+               # mid step => last value in each pair is matched with the first value in the next pair,
+               # then we set their x position to their average.
+               # Need to repeat the last value one more time to make it work
+               step_df[2*n + 1,] = step_df[2*n,]
+
+               x_i = seq_len(n)*2
+               mid_x = (step_df[x_i, x] + step_df[x_i + 1, x]) / 2
+
+               step_df[x_i, x] = mid_x
+               step_df[x_i + 1, x] = mid_x
+               step_df
+             }
+      )
+    }
+
   }
 )
-
-#' @rdname geom_lineribbon
-#' @export
-geom_lineribbon = make_geom(GeomLineribbon)
-
-
-# helpers -----------------------------------------------------------------
-
-stepify = function(df, x = "x", direction = "hv") {
-  n = nrow(df)
-
-  # sort by x and double up all rows in the data frame
-  step_df = df[rep(order(df[[x]]), each = 2),]
-
-  switch(direction,
-    hv = {
-      # horizontal-to-vertical step => lead x and drop last row
-      lead_x = step_df[[x]][-1]
-      step_df = step_df[-2*n,]
-      step_df[[x]] = lead_x
-      step_df
-    },
-    vh = {
-      # vertical-to-horizontal step => lag x and drop first row
-      lag_x = step_df[[x]][-2*n]
-      step_df = step_df[-1,]
-      step_df[[x]] = lag_x
-      step_df
-    },
-    mid = {
-      # mid step => last value in each pair is matched with the first value in the next pair,
-      # then we set their x position to their average.
-      # Need to repeat the last value one more time to make it work
-      step_df[2*n + 1,] = step_df[2*n,]
-
-      x_i = seq_len(n)*2
-      mid_x = (step_df[x_i, x] + step_df[x_i + 1, x]) / 2
-
-      step_df[x_i, x] = mid_x
-      step_df[x_i + 1, x] = mid_x
-      step_df
-    }
-  )
-}
