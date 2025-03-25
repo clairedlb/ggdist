@@ -111,9 +111,6 @@ GeomLineribbon <- ggproto(
         data$alpha_curve <- params$alpha_curve %||% self$default_key_aes$alpha_curve
       }
 
-      # Débogage : Affichez les valeurs initiales
-      message("Initial alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-      message("Initial alpha_curve:", data[["alpha_curve"]], "\n")
 
       if (is.null(data[["fill"]]) && (!is.null(data[["fill_ramp"]]) || !all(is.na(data[["alpha_ribbon"]])))) {
         data$fill = self$default_key_aes$fill
@@ -142,10 +139,6 @@ GeomLineribbon <- ggproto(
         data <- modifyList(data, list(alpha = data[["alpha_curve"]]))
         draw_key_path(data, params, size)
       }
-
-      # Débogage : Affichez les valeurs finales
-      message("Final alpha_ribbon:", data[["alpha_ribbon"]], "\n")
-      message("Final alpha_curve:", data[["alpha_curve"]], "\n")
 
       grobTree(fill_grob, line_grob)
     }
