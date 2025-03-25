@@ -103,18 +103,6 @@ GeomLineribbon <- ggproto(
 
     draw_key_lineribbon = function(self, data, params, size) {
 
-      # Vérifiez le type de data et affichez sa structure
-      message("Type de data:", class(data), "\n")
-      if (is.list(data)) {
-        message("Contenu de data:\n")
-        print(str(data))
-      } else if (is.data.frame(data)) {
-        message("Contenu de data:\n")
-        print(head(data))
-      } else {
-        message("data n'est ni une liste ni un data frame.\n")
-      }
-
       # Si alpha_ribbon ou alpha_curve ne sont pas présents, initialisez-les avec les valeurs par défaut
       if (is.null(data[["alpha_ribbon"]])) {
         data$alpha_ribbon <- params$alpha_ribbon %||% self$default_key_aes$alpha_ribbon
