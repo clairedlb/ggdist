@@ -3,7 +3,7 @@
 # Author: mjskay
 ###############################################################################
 
-
+jdhyfrsk
 # Names that should be suppressed from global variable check by codetools
 # Names used broadly should be put in _global_variables.R
 globalVariables(c(".lower", ".upper", ".width"))
