@@ -74,14 +74,20 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
   }
 
+  # Appliquer alpha_ribbon au remplissage et alpha_curve à la ligne
+  data$alpha = data$alpha_ribbon %||% data$alpha
   fill_grob = if (!is.null(data$fill)) {
     draw_key_rect(data, params, size)
   }
+
+  data$alpha = data$alpha_curve %||% data$alpha
   line_grob = if (!is.null(data$colour)) {
     draw_key_path(data, params, size)
   }
+
   grobTree(fill_grob, line_grob)
 }
+
 
 #' @rdname ggdist-ggproto
 #' @format NULL
