@@ -148,7 +148,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
 
   required_aes = c("x|y", "ymin|xmin", "ymax|xmax"),
 
-  optional_aes = c("fill_ramp", "order"),
+  optional_aes = c("fill_ramp", "order", "alpha_ribbon", "alpha_curve"),
 
   setup_data = function(data, params) {
     if (!"alpha_ribbon" %in% names(data)) {
@@ -241,8 +241,10 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     # Sauvegarder l'alpha d'origine
     data$alpha_original = data$alpha
 
-    # Sauvegarder l'alpha d'origine
-    data$alpha_original = data$alpha
+
+    # Appliquer alpha_ribbon pour les rubans si défini
+    data$alpha = ifelse(!is.na(data$alpha_ribbon), data$alpha_ribbon, data$alpha)
+
 
     # draw all the ribbons
     ribbon_grobs = dlply_(data, grouping_columns, function(d) {
@@ -291,7 +293,13 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
 
 #' @rdname geom_lineribbon
 #' @export
-geom_lineribbon = make_geom(GeomLineribbon)
+geom_lineribbon = function(mapping = NULL, data = NULL, ..., alpha_ribbon = NA, alpha_curve = NA) {
+  layer(
+    geom = GeomLineribbon, mapping = mapping, data = data,
+    stat = "identity", position = "identity",
+    params = list(alpha_ribbon = alpha_ribbon, alpha_curve = alpha_curve, ...)
+  )
+}
 
 
 # helpers -----------------------------------------------------------------
