@@ -74,7 +74,7 @@ draw_key_lineribbon = function(self, data, params, size) {
     data$linewidth = data[["linewidth"]] %||% self$default_key_aes$linewidth
   }
 
-  # Appliquer alpha_ribbon au remplissage et alpha_curve à la ligne
+  # Apply alpha_ribbon to fill_grob and alpha_curve to line_grob
   data$alpha = data$alpha_ribbon %||% data$alpha
   fill_grob = if (!is.null(data$fill)) {
     draw_key_rect(data, params, size)
@@ -116,6 +116,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
       colour = '(or `color`) The color of the **line** sub-geometry.',
       fill = 'The fill color of the **ribbon** sub-geometry.',
       alpha = 'The opacity of the **line** and **ribbon** sub-geometries.',
+      alpha_ribbon = 'The opacity of the **ribbon**.',
+      alpha_curve = 'The opacity of the **line**.',
       fill_ramp = 'A secondary scale that modifies the `fill`
        scale to "ramp" to another color. See [scale_fill_ramp()] for examples.'
     ),
@@ -244,11 +246,11 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
       xtfrm(data[["order"]])
     }
 
-    # Sauvegarder l'alpha d'origine
+    # Save alpha 
     alpha_original <- data$alpha
 
 
-    # Appliquer alpha_ribbon pour les rubans si défini
+    # Apply alpha for ribbon
     data$alpha = ifelse(!is.na(data$alpha_ribbon), data$alpha_ribbon, alpha_original)
 
 
@@ -267,10 +269,10 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     ribbon_grobs = lapply(ribbon_grobs, `[[`, i = "grobs")
     ribbon_grobs = unlist(ribbon_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-    # On restaure alpha_original
+    
     data$alpha <- alpha_original
 
-    # Appliquer alpha_curve pour les lignes si défini
+    # Apply alpha_curve for lines
     data$alpha = ifelse(!is.na(data$alpha_curve), data$alpha_curve, alpha_original)
 
 
@@ -284,7 +286,6 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     })
     line_grobs = unlist(line_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-    ### Restaurer `alpha_original`
     data$alpha <- alpha_original
 
     grobs = c(ribbon_grobs, line_grobs)
@@ -297,6 +298,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
 
 #' @rdname geom_lineribbon
 #' @export
+
+# Add alpha_curve and alpha_ribbon
 geom_lineribbon = function(mapping = NULL, data = NULL, ..., alpha_ribbon = NA, alpha_curve = NA) {
   layer(
     geom = GeomLineribbon, mapping = mapping, data = data,
