@@ -150,6 +150,16 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
 
   optional_aes = c("fill_ramp", "order"),
 
+  setup_data = function(data, params) {
+    if (!"alpha_ribbon" %in% names(data)) {
+      data$alpha_ribbon <- NA
+    }
+    if (!"alpha_curve" %in% names(data)) {
+      data$alpha_curve <- NA
+    }
+    data
+  },
+
 
   ## params ------------------------------------------------------------------
 
