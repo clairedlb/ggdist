@@ -245,11 +245,11 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     }
 
     # Sauvegarder l'alpha d'origine
-    data$alpha_original = data$alpha
+    alpha_original <- data$alpha
 
 
     # Appliquer alpha_ribbon pour les rubans si défini
-    data$alpha = ifelse(!is.na(data$alpha_ribbon), data$alpha_ribbon, data$alpha)
+    data$alpha = ifelse(!is.na(data$alpha_ribbon), data$alpha_ribbon, alpha_original)
 
 
     # draw all the ribbons
@@ -267,12 +267,11 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     ribbon_grobs = lapply(ribbon_grobs, `[[`, i = "grobs")
     ribbon_grobs = unlist(ribbon_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-
-    # Restaurer l'alpha original pour la ligne
-    data$alpha = data$alpha_original
+    # On restaure alpha_original
+    data$alpha <- alpha_original
 
     # Appliquer alpha_curve pour les lignes si défini
-    data$alpha = ifelse(!is.na(data$alpha_curve), data$alpha_curve, data$alpha)
+    data$alpha = ifelse(!is.na(data$alpha_curve), data$alpha_curve, alpha_original)
 
 
     # now draw all the lines
@@ -285,9 +284,8 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     })
     line_grobs = unlist(line_grobs, recursive = FALSE, use.names = FALSE) %||% list()
 
-
-    # Restaurer l'alpha original après dessin
-    data$alpha = data$alpha_original
+    ### Restaurer `alpha_original`
+    data$alpha <- alpha_original
 
     grobs = c(ribbon_grobs, line_grobs)
 
