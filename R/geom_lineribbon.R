@@ -128,6 +128,7 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
     fill_ramp = NULL,
     alpha = NA,
     alpha_ribbon = NA,
+    alpha_curve = NA,
     order = NULL
   ),
 
@@ -244,12 +245,17 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
       )
     })
 
-    # Restaurer l'alpha original pour la ligne
-    data$alpha = data$alpha_original
-
     ribbon_grobs = ribbon_grobs[order(map_dbl_(ribbon_grobs, `[[`, "order"))]
     ribbon_grobs = lapply(ribbon_grobs, `[[`, i = "grobs")
     ribbon_grobs = unlist(ribbon_grobs, recursive = FALSE, use.names = FALSE) %||% list()
+
+
+    # Restaurer l'alpha original pour la ligne
+    data$alpha = data$alpha_original
+
+    # Appliquer alpha_curve pour les lignes si défini
+    data$alpha = ifelse(!is.na(data$alpha_curve), data$alpha_curve, data$alpha)
+
 
     # now draw all the lines
     line_grobs = dlply_(data, grouping_columns, function(d) {
@@ -260,6 +266,10 @@ GeomLineribbon = ggproto("GeomLineribbon", AbstractGeom,
       }
     })
     line_grobs = unlist(line_grobs, recursive = FALSE, use.names = FALSE) %||% list()
+
+
+    # Restaurer l'alpha original après dessin
+    data$alpha = data$alpha_original
 
     grobs = c(ribbon_grobs, line_grobs)
 
