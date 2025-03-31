@@ -33,6 +33,8 @@ globalVariables(c(".lower", ".upper", ".width"))
 #' @param ...  Other arguments passed to [`layer()`][ggplot2::layer]. These are often aesthetics, used to set an aesthetic
 #' to a fixed value, like `colour = "red"` or `linewidth = 3` (see **Aesthetics**, below). They may also be
 #' parameters to the paired geom/stat.
+#' #' @param alpha_curve The opacity of the **line** sub-geometry. Default is `NA` .
+#' @param alpha_ribbon The opacity of the **ribbon** sub-geometry. Default is `NA` .
 #' @return A [ggplot2::Geom] representing a combined line + multiple-ribbon geometry which can
 #' be added to a [`ggplot()`][ggplot2::ggplot] object.
 #' @author Matthew Kay
